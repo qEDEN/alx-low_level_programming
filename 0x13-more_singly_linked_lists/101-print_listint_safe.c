@@ -1,85 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "lists.h"
 
+size_t looped_listint_len(const listint_t *head);
+size_t print_listint_safe(const listint_t *head);
+
 /**
- * print_listint_safe - Print a listint_t linked list safely
- * @head: Pointer to the head of the list
+ * looped_listint_len - counts the number of unique nodes
+ * in a looped listint_t linked list.
+ * @head: A pointer to the head of the listint_t to check.
  *
- * Return: The number of nodes in the list
+ * Return: If the list is not looped - 0.
+ * If it is looped - the number of unique nodes in the list.
+ */
+
+size_t looped_listint_len(const listint_t *head)
+{
+	const listint_t *sloth, *usain_bolt;
+	size_t nod = 1;
+
+	if (head == NULL || head->next == NULL)
+		return (0);
+
+	sloth = head->next;
+	usain_bolt = (head->next)->next;
+
+	while (usain_bolt)
+	{
+		if (sloth == usain_bolt)
+		{
+			sloth = head;
+			while (sloth != usain_bolt)
+			{
+				nod++;
+				sloth = sloth->next;
+				usain_bolt = usain_bolt->next;
+			}
+
+			sloth = sloth->next;
+			while (sloth != usain_bolt)
+			{
+				nod++;
+				sloth = sloth->next;
+			}
+
+			return (nod);
+		}
+
+		sloth = sloth->next;
+		usain_bolt = (usain_bolt->next)->next;
+	}
+
+	return (0);
+}
+
+/**
+ * print_listint_safe - prints the listint_t list safely.
+ * @head: Points to the head of the listint_t list.
+ *
+ * Return: The number of nodes in the list.
  */
 size_t print_listint_safe(const listint_t *head)
 {
-	const listint_t *tortoise, *hare;
-	size_t count = 0;
+	size_t nod, index = 0;
 
-	tortoise = hare = head;
+	nod = looped_listint_len(head);
 
-	while (tortoise && hare && hare->next)
+	if (nod == 0)
 	{
-		tortoise = tortoise->next;
-		hare = hare->next->next;
-
-		printf("[%p] %d\n", (void *)tortoise, tortoise->n);
-
-		if (tortoise == hare)
+		for (; head != NULL; nod++)
 		{
-			printf("-> [%p] %d\n", (void *)tortoise, tortoise->n);
-			break;
+			printf("[%p] %d\n", (void *)head, head->n);
+			head = head->next;
+		}
+	}
+	else
+	{
+		for (index = 0; index < nod; index++)
+		{
+			printf("[%p] %d\n", (void *)head, head->n);
+			head = head->next;
 		}
 
-		count++;
+		printf("-> [%p] %d\n", (void *)head, head->n);
 	}
 
-	if (tortoise == hare)
-	{
-		tortoise = head;
-		while (tortoise != hare)
-		{
-			printf("[%p] %d\n", (void *)tortoise, tortoise->n);
-			tortoise = tortoise->next;
-			hare = hare->next;
-		}
-
-		printf("-> [%p] %d\n", (void *)tortoise, tortoise->n);
-		count++;
-	}
-
-	return (count);
-}
-/**
- * main - Entry point for the program
- *
- * Description: This function serves as the entry point for the program.
- * It creates and prints a listint_t linked list safely.
- *
- * Return: Always 0
- */
-int main(void)
-{
-	listint_t *head;
-	listint_t *head2;
-	listint_t *node;
-
-	head2 = NULL;
-	add_nodeint(&head2, 0);
-	add_nodeint(&head2, 1);
-	add_nodeint(&head2, 2);
-	add_nodeint(&head2, 3);
-	add_nodeint(&head2, 4);
-	add_nodeint(&head2, 98);
-	add_nodeint(&head2, 402);
-	add_nodeint(&head2, 1024);
-	print_listint_safe(head2);
-
-	head = NULL;
-	node = add_nodeint(&head, 0);
-	add_nodeint(&head, 1);
-	add_nodeint(&head, 2);
-	add_nodeint(&head, 3);
-	add_nodeint(&head, 4);
-	node->next = add_nodeint(&head, 98);
-	add_nodeint(&head, 402);
-	add_nodeint(&head, 1024);
-	print_listint_safe(head);
-
-	return (0);
+	return (nod);
 }
